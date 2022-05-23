@@ -19,6 +19,7 @@
       "import/no-unresolved": "off",
       "import/extensions": "off",
       "no-console": "off",
-      "class-methods-use-this": "off"
+      "class-methods-use-this": "off",
+      "no-undef": "off"
     }
 }
