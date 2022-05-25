@@ -1,18 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable max-classes-per-file */
+import { LoadFacebookUserApi } from '@/data/contracts/apis';
 import { AuthenticationError } from '@/domain/errors';
 import { FacebookAuthentication } from '@/domain/features';
-
-namespace LoadFacebookUserApi {
-  export type Params = {
-    token: string;
-  }
-  export type Result = undefined
-}
-
-interface LoadFacebookUserApi {
-  loadUser(params: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result>;
-}
 
 class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
   public token: string = '';

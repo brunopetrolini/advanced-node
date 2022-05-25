@@ -1,0 +1,11 @@
+/* eslint-disable no-unused-vars */
+export namespace LoadFacebookUserApi {
+  export type Params = {
+    token: string;
+  }
+  export type Result = undefined
+}
+
+export interface LoadFacebookUserApi {
+  loadUser(params: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result>;
+}
