@@ -2,7 +2,7 @@
 /* eslint-disable max-classes-per-file */
 import { mock, MockProxy } from 'jest-mock-extended';
 
-import type { CreateFacebookAccountRepository, LoadUserAccountRepository } from '@/data/contracts/apis/repositories';
+import type { CreateFacebookAccountRepository, LoadUserAccountRepository } from '@/data/contracts/repositories';
 import type { LoadFacebookUserApi } from '@/data/contracts/apis';
 
 import { FacebookAuthenticationUseCase } from '@/data/use-cases';

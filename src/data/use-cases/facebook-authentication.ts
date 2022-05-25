@@ -1,4 +1,4 @@
-import type { CreateFacebookAccountRepository, LoadUserAccountRepository } from '@/data/contracts/apis/repositories';
+import type { CreateFacebookAccountRepository, LoadUserAccountRepository } from '@/data/contracts/repositories';
 import type { LoadFacebookUserApi } from '@/data/contracts/apis';
 
 import { AuthenticationError } from '@/domain/errors';
