@@ -1,15 +1,27 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable max-classes-per-file */
+import { AuthenticationError } from '@/domain/errors';
 import { FacebookAuthentication } from '@/domain/features';
 
 namespace LoadFacebookUserApi {
   export type Params = {
     token: string;
   }
+  export type Result = undefined
 }
 
 interface LoadFacebookUserApi {
-  loadUser(params: LoadFacebookUserApi.Params): Promise<void>;
+  loadUser(params: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result>;
+}
+
+class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
+  public token: string = '';
+  public result: undefined = undefined;
+
+  async loadUser({ token }: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result> {
+    this.token = token;
+    return this.result;
+  }
 }
 
 class FacebookAuthenticationUseCase implements FacebookAuthentication {
@@ -20,16 +32,9 @@ class FacebookAuthenticationUseCase implements FacebookAuthentication {
   }
 
   async perform(params: FacebookAuthentication.Params): Promise<FacebookAuthentication.Result> {
-    await this.loadFacebookUserApi.loadUser(params);
+    const loadUserResult = await this.loadFacebookUserApi.loadUser(params);
+    if (loadUserResult === undefined) return new AuthenticationError();
     return { accessToken: 'any_token' };
-  }
-}
-
-class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
-  public token: string = '';
-
-  async loadUser({ token }: LoadFacebookUserApi.Params): Promise<void> {
-    this.token = token;
   }
 }
 
@@ -41,5 +46,15 @@ describe('FacebookAuthenticationUseCase', () => {
     await sut.perform({ token: 'any_token' });
 
     expect(loadFacebookUserApi.token).toBe('any_token');
+  });
+
+  it('should return AuthenticationError when LoadFacebookUserApi returns undefined', async () => {
+    const loadFacebookUserApi = new LoadFacebookUserApiSpy();
+    loadFacebookUserApi.result = undefined;
+    const sut = new FacebookAuthenticationUseCase(loadFacebookUserApi);
+
+    const authResult = await sut.perform({ token: 'any_token' });
+
+    expect(authResult).toEqual(new AuthenticationError());
   });
 });

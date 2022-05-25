@@ -17,6 +17,7 @@
     "no-console": "off",
     "class-methods-use-this": "off",
     "no-undef": "off",
-    "no-redeclare": "off"
+    "no-redeclare": "off",
+    "lines-between-class-members": "off"
   }
 }
