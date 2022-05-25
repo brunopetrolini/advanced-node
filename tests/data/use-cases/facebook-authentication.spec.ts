@@ -14,10 +14,20 @@ class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
   }
 }
 
+type SutTypes = {
+  sut: FacebookAuthenticationUseCase;
+  loadFacebookUserApi: LoadFacebookUserApiSpy;
+}
+
+const makeSut = (): SutTypes => {
+  const loadFacebookUserApi = new LoadFacebookUserApiSpy();
+  const sut = new FacebookAuthenticationUseCase(loadFacebookUserApi);
+  return { sut, loadFacebookUserApi };
+};
+
 describe('FacebookAuthenticationUseCase', () => {
   it('should call LoadFacebookUserApi with correct params', async () => {
-    const loadFacebookUserApi = new LoadFacebookUserApiSpy();
-    const sut = new FacebookAuthenticationUseCase(loadFacebookUserApi);
+    const { sut, loadFacebookUserApi } = makeSut();
 
     await sut.perform({ token: 'any_token' });
 
@@ -25,9 +35,8 @@ describe('FacebookAuthenticationUseCase', () => {
   });
 
   it('should return AuthenticationError when LoadFacebookUserApi returns undefined', async () => {
-    const loadFacebookUserApi = new LoadFacebookUserApiSpy();
+    const { sut, loadFacebookUserApi } = makeSut();
     loadFacebookUserApi.result = undefined;
-    const sut = new FacebookAuthenticationUseCase(loadFacebookUserApi);
 
     const authResult = await sut.perform({ token: 'any_token' });
 
