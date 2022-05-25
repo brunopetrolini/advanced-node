@@ -18,6 +18,7 @@
     "class-methods-use-this": "off",
     "no-undef": "off",
     "no-redeclare": "off",
-    "lines-between-class-members": "off"
+    "lines-between-class-members": "off",
+    "no-plusplus": "off"
   }
 }
