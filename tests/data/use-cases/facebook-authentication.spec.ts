@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable max-classes-per-file */
 import { LoadFacebookUserApi } from '@/data/contracts/apis';
+import { FacebookAuthenticationUseCase } from '@/data/use-cases';
 import { AuthenticationError } from '@/domain/errors';
-import { FacebookAuthentication } from '@/domain/features';
 
 class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
   public token: string = '';
@@ -11,20 +11,6 @@ class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
   async loadUser({ token }: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result> {
     this.token = token;
     return this.result;
-  }
-}
-
-class FacebookAuthenticationUseCase implements FacebookAuthentication {
-  private readonly loadFacebookUserApi: LoadFacebookUserApi;
-
-  constructor(loadFacebookUserApi: LoadFacebookUserApi) {
-    this.loadFacebookUserApi = loadFacebookUserApi;
-  }
-
-  async perform(params: FacebookAuthentication.Params): Promise<FacebookAuthentication.Result> {
-    const loadUserResult = await this.loadFacebookUserApi.loadUser(params);
-    if (loadUserResult === undefined) return new AuthenticationError();
-    return { accessToken: 'any_token' };
   }
 }
 
