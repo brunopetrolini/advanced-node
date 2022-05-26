@@ -1,25 +1,20 @@
 import type { LoadFacebookUserApi } from '@/data/contracts/apis';
 import type {
-  CreateFacebookAccountRepository,
   LoadUserAccountRepository,
-  UpdateFacebookAccountRepository,
+  SaveFacebookAccountRepository,
 } from '@/data/contracts/repositories';
 
 import { AuthenticationError } from '@/domain/errors';
 import { FacebookAuthentication } from '@/domain/features';
 
 export class FacebookAuthenticationUseCase implements FacebookAuthentication {
-  private readonly userAccountRepository: LoadUserAccountRepository
-    & CreateFacebookAccountRepository
-    & UpdateFacebookAccountRepository;
+  private readonly userAccountRepository: LoadUserAccountRepository & SaveFacebookAccountRepository;
 
   private readonly facebookApi: LoadFacebookUserApi;
 
   constructor(
     facebookApi: LoadFacebookUserApi,
-    userAccountRepository: LoadUserAccountRepository
-      & CreateFacebookAccountRepository
-      & UpdateFacebookAccountRepository,
+    userAccountRepository: LoadUserAccountRepository & SaveFacebookAccountRepository,
   ) {
     this.facebookApi = facebookApi;
     this.userAccountRepository = userAccountRepository;
@@ -29,15 +24,12 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
     const facebookUserData = await this.facebookApi.loadUser(params);
     if (facebookUserData !== undefined) {
       const accountData = await this.userAccountRepository.load({ email: facebookUserData.email });
-      if (accountData !== undefined) {
-        await this.userAccountRepository.updateWithFacebook({
-          id: accountData.id,
-          name: accountData.name ?? facebookUserData.name,
-          facebookId: facebookUserData.facebookId,
-        });
-      } else {
-        await this.userAccountRepository.createFromFacebook(facebookUserData);
-      }
+      await this.userAccountRepository.saveWithFacebook({
+        id: accountData?.id,
+        name: accountData?.name ?? facebookUserData.name,
+        email: facebookUserData.email,
+        facebookId: facebookUserData.facebookId,
+      });
     }
     return new AuthenticationError();
   }
