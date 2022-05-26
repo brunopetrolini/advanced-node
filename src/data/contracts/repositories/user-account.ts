@@ -1,9 +1,14 @@
 /* eslint-disable no-unused-vars */
+type LoadUserAccountResult = {
+  id: string;
+  name?: string;
+}
+
 export namespace LoadUserAccountRepository {
   export type Params = {
     email: string
   }
-  export type Result = undefined
+  export type Result = LoadUserAccountResult | undefined
 }
 
 export interface LoadUserAccountRepository {
@@ -20,4 +25,16 @@ export namespace CreateFacebookAccountRepository {
 
 export interface CreateFacebookAccountRepository {
   createFromFacebook(params: CreateFacebookAccountRepository.Params): Promise<void>;
+}
+
+export namespace UpdateFacebookAccountRepository {
+  export type Params = {
+    id: string
+    name: string
+    facebookId: string
+  }
+}
+
+export interface UpdateFacebookAccountRepository {
+  updateWithFacebook(params: UpdateFacebookAccountRepository.Params): Promise<void>;
 }
