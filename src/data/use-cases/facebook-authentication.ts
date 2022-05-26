@@ -29,10 +29,10 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
     const facebookUserData = await this.facebookApi.loadUser(params);
     if (facebookUserData !== undefined) {
       const accountData = await this.userAccountRepository.load({ email: facebookUserData.email });
-      if (accountData?.name !== undefined) {
+      if (accountData !== undefined) {
         await this.userAccountRepository.updateWithFacebook({
           id: accountData.id,
-          name: accountData.name,
+          name: accountData.name ?? facebookUserData.name,
           facebookId: facebookUserData.facebookId,
         });
       } else {
