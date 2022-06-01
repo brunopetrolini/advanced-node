@@ -5,7 +5,7 @@ export class AccessToken {
     this.value = value;
   }
 
-  static get expirationInMilliseconds(): number {
+  static get expirationInMs(): number {
     return 30 * 60 * 1000; // equal to 30 minutes
   }
 }

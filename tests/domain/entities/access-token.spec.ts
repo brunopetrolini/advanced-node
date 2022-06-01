@@ -8,6 +8,6 @@ describe('Access Token Entity', () => {
   });
 
   it('should expire in 1800000 milliseconds', () => {
-    expect(AccessToken.expirationInMilliseconds).toBe(1800000);
+    expect(AccessToken.expirationInMs).toBe(1800000);
   });
 });

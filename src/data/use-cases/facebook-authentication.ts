@@ -7,7 +7,7 @@ import type {
 
 import { FacebookAuthentication } from '@/domain/features';
 import { AuthenticationError } from '@/domain/errors';
-import { FacebookAccount } from '@/domain/entities';
+import { AccessToken, FacebookAccount } from '@/domain/entities';
 
 export class FacebookAuthenticationUseCase implements FacebookAuthentication {
   private readonly userAccountRepository: LoadUserAccountRepository & SaveFacebookAccountRepository;
@@ -32,7 +32,7 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
       const accountData = await this.userAccountRepository.load({ email: facebookData.email });
       const facebookAccount = new FacebookAccount(facebookData, accountData);
       const { id } = await this.userAccountRepository.saveWithFacebook(facebookAccount);
-      await this.cryptograph.generateToken({ key: id });
+      await this.cryptograph.generateToken({ key: id, expirationInMs: AccessToken.expirationInMs });
     }
     return new AuthenticationError();
   }

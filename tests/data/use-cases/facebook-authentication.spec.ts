@@ -11,7 +11,7 @@ import type {
 
 import { FacebookAuthenticationUseCase } from '@/data/use-cases';
 import { AuthenticationError } from '@/domain/errors';
-import { FacebookAccount } from '@/domain/entities';
+import { AccessToken, FacebookAccount } from '@/domain/entities';
 
 jest.mock('@/domain/entities/facebook-account');
 
@@ -76,7 +76,10 @@ describe('FacebookAuthenticationUseCase', () => {
   it('should call TokenGenerator with correct params', async () => {
     await sut.perform({ token });
 
-    expect(cryptograph.generateToken).toHaveBeenCalledWith({ key: 'any_account_id' });
+    expect(cryptograph.generateToken).toHaveBeenCalledWith({
+      key: 'any_account_id',
+      expirationInMs: AccessToken.expirationInMs,
+    });
     expect(cryptograph.generateToken).toHaveBeenCalledTimes(1);
   });
 });
