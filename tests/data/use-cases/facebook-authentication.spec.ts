@@ -38,6 +38,7 @@ describe('FacebookAuthenticationUseCase', () => {
     userAccountRepository.saveWithFacebook.mockResolvedValue({ id: 'any_account_id' });
 
     cryptograph = mock();
+    cryptograph.generateToken.mockResolvedValue('any_generated_token');
 
     sut = new FacebookAuthenticationUseCase(facebookApi, userAccountRepository, cryptograph);
   });
@@ -81,5 +82,11 @@ describe('FacebookAuthenticationUseCase', () => {
       expirationInMs: AccessToken.expirationInMs,
     });
     expect(cryptograph.generateToken).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return an AccessToken on success', async () => {
+    const authResult = await sut.perform({ token });
+
+    expect(authResult).toEqual(new AccessToken('any_generated_token'));
   });
 });
