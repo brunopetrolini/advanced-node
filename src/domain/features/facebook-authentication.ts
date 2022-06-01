@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { AccessToken } from '@/domain/models';
 import { AuthenticationError } from '@/domain/errors';
+import { AccessToken } from '@/domain/entities';
 
 export namespace FacebookAuthentication {
   export type Params = {
