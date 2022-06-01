@@ -26,7 +26,7 @@ describe('FacebookAuthenticationUseCase', () => {
 
   const token = 'any_token';
 
-  beforeEach(() => {
+  beforeAll(() => {
     facebookApi = mock();
     facebookApi.loadUser.mockResolvedValue({
       facebookId: 'any_facebook_id',
@@ -39,7 +39,9 @@ describe('FacebookAuthenticationUseCase', () => {
 
     cryptograph = mock();
     cryptograph.generateToken.mockResolvedValue('any_generated_token');
+  });
 
+  beforeEach(() => {
     sut = new FacebookAuthenticationUseCase(facebookApi, userAccountRepository, cryptograph);
   });
 
