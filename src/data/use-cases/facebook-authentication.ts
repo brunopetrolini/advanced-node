@@ -32,7 +32,10 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
       const accountData = await this.userAccountRepository.load({ email: facebookData.email });
       const facebookAccount = new FacebookAccount(facebookData, accountData);
       const { id } = await this.userAccountRepository.saveWithFacebook(facebookAccount);
-      const token = await this.cryptograph.generateToken({ key: id, expirationInMs: AccessToken.expirationInMs });
+      const token = await this.cryptograph.generateToken({
+        key: id,
+        expirationInMs: AccessToken.expirationInMs,
+      });
       return new AccessToken(token);
     }
     return new AuthenticationError();
