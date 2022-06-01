@@ -1,4 +1,5 @@
 import type { LoadFacebookUserApi } from '@/data/contracts/apis';
+import type { TokenGenerator } from '../contracts/cryptograph';
 import type {
   LoadUserAccountRepository,
   SaveFacebookAccountRepository,
@@ -13,12 +14,16 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
 
   private readonly facebookApi: LoadFacebookUserApi;
 
+  private readonly cryptograph: TokenGenerator;
+
   constructor(
     facebookApi: LoadFacebookUserApi,
     userAccountRepository: LoadUserAccountRepository & SaveFacebookAccountRepository,
+    cryptograph: TokenGenerator,
   ) {
     this.facebookApi = facebookApi;
     this.userAccountRepository = userAccountRepository;
+    this.cryptograph = cryptograph;
   }
 
   async perform(params: FacebookAuthentication.Params): Promise<FacebookAuthentication.Result> {
@@ -26,7 +31,8 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
     if (facebookData !== undefined) {
       const accountData = await this.userAccountRepository.load({ email: facebookData.email });
       const facebookAccount = new FacebookAccount(facebookData, accountData);
-      await this.userAccountRepository.saveWithFacebook(facebookAccount);
+      const userAccount = await this.userAccountRepository.saveWithFacebook(facebookAccount);
+      await this.cryptograph.generateToken({ key: userAccount.id });
     }
     return new AuthenticationError();
   }

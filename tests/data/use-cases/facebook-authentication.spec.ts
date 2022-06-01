@@ -2,8 +2,12 @@
 /* eslint-disable max-classes-per-file */
 import { mock, MockProxy } from 'jest-mock-extended';
 
-import type { LoadUserAccountRepository, SaveFacebookAccountRepository } from '@/data/contracts/repositories';
+import type { TokenGenerator } from '@/data/contracts/cryptograph';
 import type { LoadFacebookUserApi } from '@/data/contracts/apis';
+import type {
+  LoadUserAccountRepository,
+  SaveFacebookAccountRepository,
+} from '@/data/contracts/repositories';
 
 import { FacebookAuthenticationUseCase } from '@/data/use-cases';
 import { AuthenticationError } from '@/domain/errors';
@@ -15,6 +19,8 @@ describe('FacebookAuthenticationUseCase', () => {
   let facebookApi: MockProxy<LoadFacebookUserApi>;
 
   let userAccountRepository: MockProxy<LoadUserAccountRepository & SaveFacebookAccountRepository>;
+
+  let cryptograph: MockProxy<TokenGenerator>;
 
   let sut: FacebookAuthenticationUseCase;
 
@@ -29,8 +35,11 @@ describe('FacebookAuthenticationUseCase', () => {
     });
 
     userAccountRepository = mock();
+    userAccountRepository.saveWithFacebook.mockResolvedValue({ id: 'any_account_id' });
 
-    sut = new FacebookAuthenticationUseCase(facebookApi, userAccountRepository);
+    cryptograph = mock();
+
+    sut = new FacebookAuthenticationUseCase(facebookApi, userAccountRepository, cryptograph);
   });
 
   it('should call LoadFacebookUserApi with correct params', async () => {
@@ -62,5 +71,12 @@ describe('FacebookAuthenticationUseCase', () => {
     await sut.perform({ token });
 
     expect(userAccountRepository.saveWithFacebook).toHaveBeenCalledWith({ any: 'any' });
+  });
+
+  it('should call TokenGenerator with correct params', async () => {
+    await sut.perform({ token });
+
+    expect(cryptograph.generateToken).toHaveBeenCalledWith({ key: 'any_account_id' });
+    expect(cryptograph.generateToken).toHaveBeenCalledTimes(1);
   });
 });
