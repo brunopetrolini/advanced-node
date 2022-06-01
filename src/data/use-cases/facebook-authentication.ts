@@ -31,8 +31,8 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
     if (facebookData !== undefined) {
       const accountData = await this.userAccountRepository.load({ email: facebookData.email });
       const facebookAccount = new FacebookAccount(facebookData, accountData);
-      const userAccount = await this.userAccountRepository.saveWithFacebook(facebookAccount);
-      await this.cryptograph.generateToken({ key: userAccount.id });
+      const { id } = await this.userAccountRepository.saveWithFacebook(facebookAccount);
+      await this.cryptograph.generateToken({ key: id });
     }
     return new AuthenticationError();
   }
