@@ -6,4 +6,8 @@ describe('Access Token Entity', () => {
 
     expect(sut).toEqual({ value: 'any_value' });
   });
+
+  it('should expire in 1800000 milliseconds', () => {
+    expect(AccessToken.expirationInMilliseconds).toBe(1800000);
+  });
 });
