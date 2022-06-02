@@ -3,16 +3,22 @@ import type { LoadFacebookUserApi } from '@/data/contracts/apis';
 import type { HttpGetClient } from '@/infra/http';
 
 type GetDebugTokenParams = {
-  clientToken: string,
-  appToken: string
+  clientToken: string;
+  appToken: string;
 }
 
 type GetUserInfoParams = {
-  clientToken: string,
-  debugToken: string
+  clientToken: string;
+  debugToken: string;
 }
 
-export class FacebookApi {
+type GetUserInfoResult = {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export class FacebookApi implements LoadFacebookUserApi {
   private readonly baseUrl = 'https://graph.facebook.com';
 
   private readonly httpGetClient: HttpGetClient;
@@ -31,7 +37,7 @@ export class FacebookApi {
     this.clientSecret = clientSecret;
   }
 
-  async getAppToken(): Promise<string> {
+  private async getAppToken(): Promise<string> {
     const response = await this.httpGetClient.get({
       url: `${this.baseUrl}/oauth/access_token`,
       params: {
@@ -43,7 +49,7 @@ export class FacebookApi {
     return response.access_token;
   }
 
-  async getDebugToken({ clientToken, appToken }: GetDebugTokenParams): Promise<string> {
+  private async getDebugToken({ clientToken, appToken }: GetDebugTokenParams): Promise<string> {
     const response = await this.httpGetClient.get({
       url: `${this.baseUrl}/debug_token`,
       params: {
@@ -54,19 +60,25 @@ export class FacebookApi {
     return response.data.user_id;
   }
 
-  async getUserInfo({ debugToken, clientToken }: GetUserInfoParams): Promise<void> {
-    await this.httpGetClient.get({
+  private async getUserInfo({ debugToken, clientToken }: GetUserInfoParams): Promise<GetUserInfoResult> {
+    const response = await this.httpGetClient.get({
       url: `${this.baseUrl}/${debugToken}`,
       params: {
         fields: ['id', 'name', 'email'].join(','),
         access_token: clientToken,
       },
     });
+    return response;
   }
 
-  async loadUser({ token }: LoadFacebookUserApi.Params): Promise<void> {
+  public async loadUser({ token }: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result> {
     const appToken = await this.getAppToken();
     const debugToken = await this.getDebugToken({ clientToken: token, appToken });
-    await this.getUserInfo({ debugToken, clientToken: token });
+    const userInfo = await this.getUserInfo({ debugToken, clientToken: token });
+    return {
+      facebookId: userInfo.id,
+      name: userInfo.name,
+      email: userInfo.email,
+    };
   }
 }
