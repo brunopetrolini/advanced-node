@@ -7,6 +7,11 @@ type GetDebugTokenParams = {
   appToken: string
 }
 
+type GetUserInfoParams = {
+  clientToken: string,
+  debugToken: string
+}
+
 export class FacebookApi {
   private readonly baseUrl = 'https://graph.facebook.com';
 
@@ -38,18 +43,30 @@ export class FacebookApi {
     return response.access_token;
   }
 
-  async getDebugToken({ clientToken, appToken }: GetDebugTokenParams): Promise<void> {
-    await this.httpGetClient.get({
+  async getDebugToken({ clientToken, appToken }: GetDebugTokenParams): Promise<string> {
+    const response = await this.httpGetClient.get({
       url: `${this.baseUrl}/debug_token`,
       params: {
         access_token: appToken,
         input_token: clientToken,
       },
     });
+    return response.data.user_id;
+  }
+
+  async getUserInfo({ debugToken, clientToken }: GetUserInfoParams): Promise<void> {
+    await this.httpGetClient.get({
+      url: `${this.baseUrl}/${debugToken}`,
+      params: {
+        fields: ['id', 'name', 'email'].join(','),
+        access_token: clientToken,
+      },
+    });
   }
 
   async loadUser({ token }: LoadFacebookUserApi.Params): Promise<void> {
     const appToken = await this.getAppToken();
-    await this.getDebugToken({ clientToken: token, appToken });
+    const debugToken = await this.getDebugToken({ clientToken: token, appToken });
+    await this.getUserInfo({ debugToken, clientToken: token });
   }
 }
