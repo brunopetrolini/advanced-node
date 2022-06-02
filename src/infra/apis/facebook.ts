@@ -2,6 +2,11 @@
 import type { LoadFacebookUserApi } from '@/data/contracts/apis';
 import type { HttpGetClient } from '@/infra/http';
 
+type GetDebugTokenParams = {
+  clientToken: string,
+  appToken: string
+}
+
 export class FacebookApi {
   private readonly baseUrl = 'https://graph.facebook.com';
 
@@ -21,8 +26,8 @@ export class FacebookApi {
     this.clientSecret = clientSecret;
   }
 
-  async loadUser(params: LoadFacebookUserApi.Params): Promise<void> {
-    await this.httpGetClient.get({
+  async getAppToken(): Promise<string> {
+    const response = await this.httpGetClient.get({
       url: `${this.baseUrl}/oauth/access_token`,
       params: {
         client_id: this.clientId,
@@ -30,5 +35,21 @@ export class FacebookApi {
         grant_type: 'client_credentials',
       },
     });
+    return response.access_token;
+  }
+
+  async getDebugToken({ clientToken, appToken }: GetDebugTokenParams): Promise<void> {
+    await this.httpGetClient.get({
+      url: `${this.baseUrl}/debug_token`,
+      params: {
+        access_token: appToken,
+        input_token: clientToken,
+      },
+    });
+  }
+
+  async loadUser({ token }: LoadFacebookUserApi.Params): Promise<void> {
+    const appToken = await this.getAppToken();
+    await this.getDebugToken({ clientToken: token, appToken });
   }
 }
