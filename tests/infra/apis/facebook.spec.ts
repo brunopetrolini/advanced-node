@@ -1,54 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { mock, MockProxy } from 'jest-mock-extended';
-import { LoadFacebookUserApi } from '@/data/contracts/apis';
 
-type RequestParams = {
-  client_id: string
-  client_secret: string
-  grant_type: string
-}
+import type { HttpGetClient } from '@/infra/http';
 
-namespace HttpGetClient {
-  export type Params = {
-    url: string
-    params: RequestParams
-  }
-}
-
-interface HttpGetClient {
-  get(params: HttpGetClient.Params): Promise<void>
-}
-
-class FacebookApi {
-  private readonly baseUrl = 'https://graph.facebook.com';
-
-  private readonly httpGetClient: HttpGetClient;
-
-  private readonly clientId: string;
-
-  private readonly clientSecret: string;
-
-  constructor(
-    httpGetClient: HttpGetClient,
-    clientId: string,
-    clientSecret: string,
-  ) {
-    this.httpGetClient = httpGetClient;
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-  }
-
-  async loadUser(params: LoadFacebookUserApi.Params): Promise<void> {
-    await this.httpGetClient.get({
-      url: `${this.baseUrl}/oauth/access_token`,
-      params: {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        grant_type: 'client_credentials',
-      },
-    });
-  }
-}
+import { FacebookApi } from '@/infra/apis';
 
 describe('Facebook Api', () => {
   let httpGetClient: MockProxy<HttpGetClient>;
