@@ -2,20 +2,20 @@
 import type { LoadFacebookUserApi } from '@/data/contracts/apis';
 import type { HttpGetClient } from '@/infra/http';
 
-type GetDebugTokenParams = {
-  clientToken: string;
-  appToken: string;
+type AppTokenResponse = {
+  access_token: string
 }
 
-type GetUserInfoParams = {
-  clientToken: string;
-  debugToken: string;
+type DebugTokenResponse = {
+  data: {
+    user_id: string
+  }
 }
 
-type GetUserInfoResult = {
-  id: string;
-  name: string;
-  email: string;
+type UserInfoResponse = {
+  id: string,
+  name: string,
+  email: string
 }
 
 export class FacebookApi implements LoadFacebookUserApi {
@@ -37,8 +37,8 @@ export class FacebookApi implements LoadFacebookUserApi {
     this.clientSecret = clientSecret;
   }
 
-  private async getAppToken(): Promise<string> {
-    const response = await this.httpGetClient.get({
+  private async getAppToken(): Promise<AppTokenResponse> {
+    return this.httpGetClient.get<AppTokenResponse>({
       url: `${this.baseUrl}/oauth/access_token`,
       params: {
         client_id: this.clientId,
@@ -46,35 +46,32 @@ export class FacebookApi implements LoadFacebookUserApi {
         grant_type: 'client_credentials',
       },
     });
-    return response.access_token;
   }
 
-  private async getDebugToken({ clientToken, appToken }: GetDebugTokenParams): Promise<string> {
-    const response = await this.httpGetClient.get({
+  private async getDebugToken(clientToken: string): Promise<DebugTokenResponse> {
+    const appToken = await this.getAppToken();
+    return this.httpGetClient.get<DebugTokenResponse>({
       url: `${this.baseUrl}/debug_token`,
       params: {
-        access_token: appToken,
+        access_token: appToken.access_token,
         input_token: clientToken,
       },
     });
-    return response.data.user_id;
   }
 
-  private async getUserInfo({ debugToken, clientToken }: GetUserInfoParams): Promise<GetUserInfoResult> {
-    const response = await this.httpGetClient.get({
-      url: `${this.baseUrl}/${debugToken}`,
+  private async getUserInfo(clientToken: string): Promise<UserInfoResponse> {
+    const debugToken = await this.getDebugToken(clientToken);
+    return this.httpGetClient.get<UserInfoResponse>({
+      url: `${this.baseUrl}/${debugToken.data.user_id}`,
       params: {
         fields: ['id', 'name', 'email'].join(','),
         access_token: clientToken,
       },
     });
-    return response;
   }
 
   public async loadUser({ token }: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result> {
-    const appToken = await this.getAppToken();
-    const debugToken = await this.getDebugToken({ clientToken: token, appToken });
-    const userInfo = await this.getUserInfo({ debugToken, clientToken: token });
+    const userInfo = await this.getUserInfo(token);
     return {
       facebookId: userInfo.id,
       name: userInfo.name,
