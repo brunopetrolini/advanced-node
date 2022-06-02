@@ -3,10 +3,8 @@ module.exports = {
   collectCoverage: false,
   collectCoverageFrom: [
     '<rootDir>/src/**/*.ts',
-    '!<rootDir>/src/domain/features/*.ts',
-    '!<rootDir>/src/domain/models/*.ts',
-    '!<rootDir>/src/data/contracts/**/*.ts',
-    '!<rootDir>/src/main/**/*.ts',
+    '!<rootDir>/src/**/index.ts',
+    '!<rootDir>/src/main/**',
   ],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
