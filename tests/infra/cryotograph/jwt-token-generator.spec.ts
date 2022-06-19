@@ -11,9 +11,14 @@ class JwtTokenGenerator {
     this.secret = secret;
   }
 
-  async generateToken({ key, expirationInMs }: TokenGenerator.Params): Promise<void> {
-    const expirationInSeconds = expirationInMs / 1000;
-    jwt.sign({ key }, this.secret, { expiresIn: expirationInSeconds });
+  async generateToken(params: TokenGenerator.Params): Promise<TokenGenerator.Result> {
+    const expirationInSeconds = params.expirationInMs / 1000;
+    const token = jwt.sign(
+      { key: params.key },
+      this.secret,
+      { expiresIn: expirationInSeconds },
+    );
+    return token;
   }
 }
 
@@ -27,6 +32,7 @@ describe('Jwt Token Generator', () => {
 
   beforeAll(() => {
     fakeJwt = jwt as jest.Mocked<typeof jwt>;
+    fakeJwt.sign.mockImplementation(() => 'any_token');
   });
 
   beforeEach(() => {
@@ -38,5 +44,11 @@ describe('Jwt Token Generator', () => {
 
     expect(fakeJwt.sign).toHaveBeenCalledWith({ key }, secret, { expiresIn: 1 });
     expect(fakeJwt.sign).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return a token', async () => {
+    const token = await sut.generateToken({ key, expirationInMs });
+
+    expect(token).toBe('any_token');
   });
 });
