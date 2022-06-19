@@ -7,5 +7,5 @@ export namespace HttpGetClient {
 }
 
 export interface HttpGetClient {
-  get<ResponseType = any>(params: HttpGetClient.Params): Promise<ResponseType>
+  get<ResponseType = any>(args: HttpGetClient.Params): Promise<ResponseType>
 }
