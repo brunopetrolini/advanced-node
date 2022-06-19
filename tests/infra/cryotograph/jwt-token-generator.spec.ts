@@ -1,26 +1,8 @@
 import jwt from 'jsonwebtoken';
 
-import { TokenGenerator } from '@/data/contracts/cryptograph';
+import { JwtTokenGenerator } from '@/infra/cryptograph';
 
 jest.mock('jsonwebtoken');
-
-class JwtTokenGenerator {
-  private readonly secret: string;
-
-  constructor(secret: string) {
-    this.secret = secret;
-  }
-
-  async generateToken(params: TokenGenerator.Params): Promise<TokenGenerator.Result> {
-    const expirationInSeconds = params.expirationInMs / 1000;
-    const token = jwt.sign(
-      { key: params.key },
-      this.secret,
-      { expiresIn: expirationInSeconds },
-    );
-    return token;
-  }
-}
 
 describe('Jwt Token Generator', () => {
   let fakeJwt: jest.Mocked<typeof jwt>;
