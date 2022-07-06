@@ -19,7 +19,6 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "@types/jest": "^27.5.1",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/module-alias": "^2.0.1",
