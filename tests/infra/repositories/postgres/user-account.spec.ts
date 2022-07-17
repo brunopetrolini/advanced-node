@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import {
-  Column, Entity, getRepository, PrimaryGeneratedColumn,
+  Column, Entity, getConnection, getRepository, PrimaryGeneratedColumn, Repository,
 } from 'typeorm';
 import { newDb } from 'pg-mem';
 
@@ -37,25 +37,27 @@ class PgUserAccountRepository implements LoadUserAccountRepository {
 
 describe('PgUserAccountRepository', () => {
   describe('load', () => {
-    let connection: any;
+    let sut: PgUserAccountRepository;
+    let pgUserRepository: Repository<PgUser>;
 
     beforeEach(async () => {
       const db = newDb();
-      connection = await db.adapters.createTypeormConnection({
+      const connection = await db.adapters.createTypeormConnection({
         type: 'postgres',
         entities: [PgUser],
       });
       await connection.synchronize();
+
+      pgUserRepository = getRepository(PgUser);
+      sut = new PgUserAccountRepository();
     });
 
     afterEach(async () => {
-      await connection.close();
+      await getConnection().close();
     });
 
     it('should return an account if email exists', async () => {
-      const pgUserRepository = getRepository(PgUser);
       await pgUserRepository.save({ email: 'existing_email' });
-      const sut = new PgUserAccountRepository();
 
       const account = await sut.load({ email: 'existing_email' });
 
@@ -63,8 +65,6 @@ describe('PgUserAccountRepository', () => {
     });
 
     it('should return undefined if email does not exists', async () => {
-      const sut = new PgUserAccountRepository();
-
       const account = await sut.load({ email: 'new_email' });
 
       expect(account).toBeUndefined();
