@@ -11,6 +11,8 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "baseUrl": "src",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "paths": {
       "@/*": ["*"],
       "@/tests/*": ["../tests/*"]
