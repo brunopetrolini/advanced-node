@@ -37,14 +37,22 @@ class PgUserAccountRepository implements LoadUserAccountRepository {
 
 describe('PgUserAccountRepository', () => {
   describe('load', () => {
-    it('should return an account if email exists', async () => {
+    let connection: any;
+
+    beforeEach(async () => {
       const db = newDb();
-      const connection = await db.adapters.createTypeormConnection({
+      connection = await db.adapters.createTypeormConnection({
         type: 'postgres',
         entities: [PgUser],
       });
       await connection.synchronize();
+    });
 
+    afterEach(async () => {
+      await connection.close();
+    });
+
+    it('should return an account if email exists', async () => {
       const pgUserRepository = getRepository(PgUser);
       await pgUserRepository.save({ email: 'existing_email' });
       const sut = new PgUserAccountRepository();
@@ -52,6 +60,14 @@ describe('PgUserAccountRepository', () => {
       const account = await sut.load({ email: 'existing_email' });
 
       expect(account).toEqual({ id: '1' });
+    });
+
+    it('should return undefined if email does not exists', async () => {
+      const sut = new PgUserAccountRepository();
+
+      const account = await sut.load({ email: 'new_email' });
+
+      expect(account).toBeUndefined();
     });
   });
 });
