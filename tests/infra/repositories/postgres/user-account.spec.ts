@@ -35,6 +35,10 @@ class PgUserAccountRepository implements LoadUserAccountRepository {
   }
 }
 
+const makeFakeDatabase = (): void => {
+
+};
+
 describe('PgUserAccountRepository', () => {
   describe('load', () => {
     let sut: PgUserAccountRepository;
